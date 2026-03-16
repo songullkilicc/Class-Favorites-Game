@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Class Favorites 🎮</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',sans-serif;background:#1a1a2e;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:1.5rem 1rem}
+.game-wrap{width:100%;max-width:680px}
+.game-title{text-align:center;font-family:'Fredoka One',cursive;font-size:2rem;color:#fff;margin-bottom:1.2rem;text-shadow:0 2px 8px rgba(0,0,0,.4)}
+.game-title span{color:#FFD700}
+.card{background:rgba(255,255,255,.07);border-radius:20px;padding:1.5rem;border:1px solid rgba(255,255,255,.12)}
+.question-header{text-align:center;margin-bottom:1.2rem}
+.question-label{font-size:12px;color:rgba(255,255,255,.5);letter-spacing:.08em;text-transform:uppercase;font-weight:700;margin-bottom:.3rem}
+.question-text{font-family:'Fredoka One',cursive;font-size:1.7rem;color:#fff;line-height:1.2}
+.nav-row{display:flex;gap:7px;justify-content:center;margin-bottom:1rem;flex-wrap:wrap}
+.nav-dot{width:11px;height:11px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:transparent;cursor:pointer;transition:all .2s}
+.nav-dot.active{background:#FFD700;border-color:#FFD700}
+.nav-dot.done{background:rgba(255,255,255,.35);border-color:rgba(255,255,255,.35)}
+.vote-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:1rem}
+.vote-card{border-radius:18px;padding:1.2rem;text-align:center;cursor:pointer;transition:transform .15s;border:3px solid transparent;user-select:none}
+.vote-card:hover{transform:translateY(-4px)}
+.vote-card .emoji{font-size:3rem;display:block;margin-bottom:.5rem}
+.vote-card .name{font-family:'Fredoka One',cursive;font-size:1.2rem;margin-bottom:1rem;color:#fff}
+.count-row{display:flex;align-items:center;gap:10px;justify-content:center}
+.count-btn{width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,.5);background:rgba(255,255,255,.2);cursor:pointer;font-size:1.2rem;font-weight:700;display:flex;align-items:center;justify-content:center;transition:background .15s;color:#fff}
+.count-btn:hover{background:rgba(255,255,255,.4)}
+.count-val{font-family:'Fredoka One',cursive;font-size:2rem;min-width:40px;text-align:center;color:#fff}
+.hand-hint{text-align:center;font-size:.9rem;color:rgba(255,255,255,.7);margin-bottom:.8rem;font-weight:700;letter-spacing:.03em;min-height:22px}
+.countdown-bar{text-align:center;margin-bottom:.8rem;min-height:32px}
+.countdown-num{font-family:'Fredoka One',cursive;font-size:2rem;color:#FFD700}
+.action-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:.5rem}
+.btn{padding:.6rem 1.5rem;border-radius:40px;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;color:#fff;transition:all .15s}
+.btn:hover{background:rgba(255,255,255,.2);transform:scale(1.04)}
+.btn-primary{background:#FFD700;color:#1a1a2e;border-color:#FFD700}
+.btn-primary:hover{background:#ffc300}
+.category-badge{display:inline-block;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;margin-bottom:.6rem;background:rgba(255,255,255,.15);color:rgba(255,255,255,.8)}
+.winner-screen{display:none;text-align:center;padding:2rem 1rem;position:relative;overflow:hidden}
+.winner-screen.show{display:block}
+.winner-emoji{font-size:5rem;margin-bottom:.5rem;display:block;animation:bounce .6s infinite alternate}
+.winner-title{font-family:'Fredoka One',cursive;font-size:2.5rem;color:#FFD700;margin-bottom:.3rem;text-shadow:0 2px 12px rgba(255,215,0,.4)}
+.winner-score{font-size:1.1rem;color:rgba(255,255,255,.7);font-weight:700;margin-bottom:1.2rem}
+.confetti-wrap{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden}
+.cf{position:absolute;width:10px;height:10px;animation:fall linear forwards}
+.progress{font-size:.8rem;color:rgba(255,255,255,.5);text-align:center;margin-top:.4rem;font-weight:700}
+@keyframes bounce{from{transform:translateY(0) scale(1)}to{transform:translateY(-14px) scale(1.1)}}
+@keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(500px) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+<div class="game-wrap">
+  <div class="game-title">Class <span>Favorites</span> 🎮</div>
+  <div class="card">
+    <div id="gameMain">
+      <div class="question-header">
+        <div class="question-label">Question <span id="qNum">1</span> / 15</div>
+        <div id="catBadge" class="category-badge">Food</div>
+        <div class="question-text" id="qText">Which do you like more?</div>
+      </div>
+      <div class="nav-row" id="navDots"></div>
+      <div class="countdown-bar" id="countdownBar"></div>
+      <div class="hand-hint" id="handHint">✋ Raise your hand!</div>
+      <div class="vote-cards" id="voteCards">
+        <div class="vote-card" id="cardA" style="background:#FF6B35">
+          <span class="emoji" id="emojiA">🍕</span>
+          <div class="name" id="nameA">Pizza</div>
+          <div class="count-row">
+            <button class="count-btn" onclick="change('A',-1)">−</button>
+            <span class="count-val" id="valA">0</span>
+            <button class="count-btn" onclick="change('A',1)">+</button>
+          </div>
+        </div>
+        <div class="vote-card" id="cardB" style="background:#4A90D9">
+          <span class="emoji" id="emojiB">🍔</span>
+          <div class="name" id="nameB">Hamburger</div>
+          <div class="count-row">
+            <button class="count-btn" onclick="change('B',-1)">−</button>
+            <span class="count-val" id="valB">0</span>
+            <button class="count-btn" onclick="change('B',1)">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="action-row">
+        <button class="btn" onclick="startCountdown()">⏱ 3-2-1 Vote!</button>
+        <button class="btn btn-primary" onclick="showWinner()">🏆 Show Winner!</button>
+        <button class="btn" onclick="nextQ()">Next ➜</button>
+      </div>
+      <div class="progress" id="progText"></div>
+    </div>
+    <div class="winner-screen" id="winnerScreen">
+      <div class="confetti-wrap" id="confettiWrap"></div>
+      <span class="winner-emoji" id="wEmoji">🍕</span>
+      <div class="winner-title" id="wTitle">Pizza Wins!</div>
+      <div class="winner-score" id="wScore">5 vs 4</div>
+      <div class="action-row" style="margin-top:1rem">
+        <button class="btn btn-primary" onclick="nextQ()">Next Question ➜</button>
+        <button class="btn" onclick="resetAll()">🔄 Restart</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const Qs=[
+  {cat:"Food",a:"Pizza",ae:"🍕",b:"Hamburger",be:"🍔",ca:"#FF6B35",cb:"#E8943A"},
+  {cat:"Food",a:"Ice cream",ae:"🍦",b:"Chocolate",be:"🍫",ca:"#F9A8C9",cb:"#7B4F2E"},
+  {cat:"Food",a:"Apple",ae:"🍎",b:"Banana",be:"🍌",ca:"#E84545",cb:"#F5C518"},
+  {cat:"Food",a:"Cake",ae:"🎂",b:"Donut",be:"🍩",ca:"#C84B8F",cb:"#D4822A"},
+  {cat:"Games",a:"Video games",ae:"🎮",b:"Watching TV",be:"📺",ca:"#6A4C93",cb:"#2D6A9F"},
+  {cat:"Games",a:"Football",ae:"⚽",b:"Basketball",be:"🏀",ca:"#2D8B4E",cb:"#E86428"},
+  {cat:"Games",a:"Playing outside",ae:"🌳",b:"Staying home",be:"🏠",ca:"#3A8B3A",cb:"#8B7355"},
+  {cat:"School",a:"English",ae:"📘",b:"Math",be:"➗",ca:"#2563A8",cb:"#7A4199"},
+  {cat:"School",a:"Reading",ae:"📖",b:"Drawing",be:"🎨",ca:"#5B8A5B",cb:"#C84B8F"},
+  {cat:"Free time",a:"Music",ae:"🎧",b:"Movies",be:"🎬",ca:"#1A6B8A",cb:"#8B3A3A"},
+  {cat:"Free time",a:"YouTube",ae:"▶️",b:"Video games",be:"🎮",ca:"#CC0000",cb:"#6A4C93"},
+  {cat:"Funny",a:"Pizza",ae:"🍕",b:"Ice cream",be:"🍦",ca:"#FF6B35",cb:"#F9A8C9"},
+  {cat:"Funny",a:"Summer",ae:"☀️",b:"Winter",be:"❄️",ca:"#E8A000",cb:"#5B9BD5"},
+  {cat:"Funny",a:"Cats",ae:"🐱",b:"Dogs",be:"🐶",ca:"#9B59B6",cb:"#D4922A"},
+  {cat:"Funny",a:"Morning",ae:"🌅",b:"Night",be:"🌙",ca:"#E8A000",cb:"#2C3E6B"}
+];
+let cur=0,vA=0,vB=0,cdTimer=null;
+const AudioCtx=window.AudioContext||window.webkitAudioContext;
+let actx=null;
+function getCtx(){if(!actx)actx=new AudioCtx();return actx;}
+function beep(freq,dur,type='sine',gain=0.3){
+  try{const c=getCtx();const o=c.createOscillator();const g=c.createGain();
+  o.connect(g);g.connect(c.destination);o.type=type;o.frequency.value=freq;
+  g.gain.setValueAtTime(gain,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+dur);
+  o.start(c.currentTime);o.stop(c.currentTime+dur);}catch(e){}}
+function playWin(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,.18,'triangle',.35),i*120));}
+function playTick(n){const f=n===1?880:n===2?660:440;beep(f,.12,'square',.2);}
+function playSelect(){beep(660,.08,'sine',.15);}
+function buildDots(){
+  const d=document.getElementById('navDots');d.innerHTML='';
+  Qs.forEach((_,i)=>{
+    const s=document.createElement('button');s.className='nav-dot'+(i===cur?' active':'');
+    s.onclick=()=>goTo(i);d.appendChild(s);
+  });
+}
+function goTo(i){cur=i;vA=0;vB=0;clearCD();renderQ();}
+function renderQ(){
+  const q=Qs[cur];
+  document.getElementById('qNum').textContent=cur+1;
+  document.getElementById('catBadge').textContent=q.cat;
+  document.getElementById('emojiA').textContent=q.ae;
+  document.getElementById('nameA').textContent=q.a;
+  document.getElementById('emojiB').textContent=q.be;
+  document.getElementById('nameB').textContent=q.b;
+  document.getElementById('cardA').style.background=q.ca;
+  document.getElementById('cardB').style.background=q.cb;
+  document.getElementById('valA').textContent=vA;
+  document.getElementById('valB').textContent=vB;
+  document.getElementById('handHint').textContent='✋ Raise your hand!';
+  document.getElementById('countdownBar').innerHTML='';
+  document.getElementById('winnerScreen').classList.remove('show');
+  document.getElementById('gameMain').style.display='';
+  document.getElementById('progText').textContent='';
+  buildDots();
+}
+function change(side,d){
+  playSelect();
+  if(side==='A'){vA=Math.max(0,vA+d);document.getElementById('valA').textContent=vA;}
+  else{vB=Math.max(0,vB+d);document.getElementById('valB').textContent=vB;}
+}
+function startCountdown(){
+  clearCD();
+  document.getElementById('handHint').textContent='✋ Raise your hand!';
+  let n=3;
+  function tick(){
+    playTick(n);
+    document.getElementById('countdownBar').innerHTML='<span class="countdown-num">'+n+'…</span>';
+    if(n===1){
+      setTimeout(()=>{
+        document.getElementById('countdownBar').innerHTML='<span class="countdown-num" style="color:#FF6B35">🗳 VOTE!</span>';
+        setTimeout(()=>document.getElementById('countdownBar').innerHTML='',1000);
+      },900);
+    }
+    n--;
+    if(n>0)cdTimer=setTimeout(tick,900);
+  }
+  tick();
+}
+function clearCD(){if(cdTimer){clearTimeout(cdTimer);cdTimer=null;}}
+function showWinner(){
+  clearCD();
+  const q=Qs[cur];
+  if(vA===0&&vB===0){document.getElementById('handHint').textContent='⚠️ Enter votes first!';return;}
+  document.getElementById('gameMain').style.display='none';
+  const ws=document.getElementById('winnerScreen');ws.classList.add('show');
+  if(vA>vB){
+    document.getElementById('wEmoji').textContent=q.ae;
+    document.getElementById('wTitle').textContent=q.a+' Wins! 🎉';
+  } else if(vB>vA){
+    document.getElementById('wEmoji').textContent=q.be;
+    document.getElementById('wTitle').textContent=q.b+' Wins! 🎉';
+  } else {
+    document.getElementById('wEmoji').textContent='🤝';
+    document.getElementById('wTitle').textContent="It's a Tie!";
+  }
+  document.getElementById('wScore').textContent=vA+' vs '+vB;
+  playWin();launchConfetti();
+}
+function launchConfetti(){
+  const wrap=document.getElementById('confettiWrap');wrap.innerHTML='';
+  const cols=['#FF6B35','#FFD700','#4A90D9','#FF69B4','#7FBA00','#C84B8F','#00BFFF'];
+  for(let i=0;i<60;i++){
+    const cf=document.createElement('div');cf.className='cf';
+    cf.style.left=Math.random()*100+'%';
+    cf.style.background=cols[Math.floor(Math.random()*cols.length)];
+    const sz=7+Math.random()*9;cf.style.width=sz+'px';cf.style.height=sz+'px';
+    if(Math.random()>.5)cf.style.borderRadius='50%';
+    cf.style.animationDuration=(1.3+Math.random()*1.5)+'s';
+    cf.style.animationDelay=(Math.random()*.7)+'s';
+    wrap.appendChild(cf);
+  }
+  setTimeout(()=>wrap.innerHTML='',3500);
+}
+function nextQ(){
+  clearCD();
+  if(cur<Qs.length-1){cur++;vA=0;vB=0;renderQ();}
+  else{
+    document.getElementById('winnerScreen').classList.remove('show');
+    document.getElementById('gameMain').style.display='';
+    document.getElementById('handHint').textContent='🎊 All 15 questions done!';
+    document.getElementById('progText').textContent='Press Restart to play again!';
+  }
+}
+function resetAll(){cur=0;vA=0;vB=0;clearCD();renderQ();}
+renderQ();
+</script>
+</body>
+</html>
